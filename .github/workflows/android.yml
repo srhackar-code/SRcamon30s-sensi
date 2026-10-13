@@ -82,13 +82,10 @@ steps:
     run: |
       set -e
 
-      PROJECT_DIR="$(find "$GITHUB_WORKSPACE/source" \
-        -type f -name settings.gradle -o -name settings.gradle.kts \
-        -print -quit | xargs -r dirname)"
+      PROJECT_DIR="$(find "$GITHUB_WORKSPACE/source" -type f -name settings.gradle -o -name settings.gradle.kts -print -quit | xargs -r dirname)"
 
       if [ -z "$PROJECT_DIR" ]; then
-        echo "ERROR: settings.gradle or settings.gradle.kts was not found inside the ZIP."
-        echo "Please check the ZIP folder structure."
+        echo "ERROR: Android Gradle project settings file was not found inside the ZIP."
         exit 1
       fi
 
@@ -110,5 +107,5 @@ steps:
     uses: actions/upload-artifact@v4
     with:
       name: CAMON30S-Sensi-APK
-      path: source/**/build/outputs/apk/debug/*.apk
+      path: "**/build/outputs/apk/debug/*.apk"
       if-no-files-found: error
