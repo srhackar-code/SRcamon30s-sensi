@@ -1,84 +1,84 @@
 {
-"name": "Build Sensi APK",
-"on": {
-"workflow_dispatch": {},
-"push": {
-"paths": [
-"TECNO_CAMON30S_Sensi_App_Project.zip",
-".github/workflows/android.yml"
-]
-}
-},
-"permissions": {
-"contents": "read"
-},
-"jobs": {
-"build": {
-"runs-on": "ubuntu-24.04",
-"env": {
-"ANDROID_HOME": "/usr/local/lib/android/sdk",
-"ANDROID_SDK_ROOT": "/usr/local/lib/android/sdk"
-},
-"steps": [
-{
-"name": "Checkout repository",
-"uses": "actions/checkout@v5"
-},
-{
-"name": "Set up Java",
-"uses": "actions/setup-java@v5",
-"with": {
-"distribution": "temurin",
-"java-version": "17"
-}
-},
-{
-"name": "Install Android Command-line Tools",
-"shell": "bash",
-"run": "set -e\nmkdir -p "$ANDROID_HOME/cmdline-tools"\ncd "$RUNNER_TEMP"\ncurl -fL https://dl.google.com/android/repository/commandlinetools-linux-12266719_latest.zip -o android-tools.zip\nmkdir -p android-tools\nunzip -q android-tools.zip -d android-tools\nmv android-tools/cmdline-tools "$ANDROID_HOME/cmdline-tools/latest"\necho "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"\necho "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH""
-},
-{
-"name": "Accept Android SDK Licenses",
-"shell": "bash",
-"run": "set -e\nset +o pipefail\nyes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses || true"
-},
-{
-"name": "Install Android SDK Components",
-"shell": "bash",
-"run": "set -e\nsdkmanager --sdk_root="$ANDROID_HOME" --install "platform-tools" "platforms;android-35" "build-tools;35.0.0""
-},
-{
-"name": "Extract project ZIP",
-"shell": "bash",
-"run": "set -e\nZIP_FILE="$GITHUB_WORKSPACE/TECNO_CAMON30S_Sensi_App_Project.zip"\nif [ ! -f "$ZIP_FILE" ]; then\n  echo "ERROR: Project ZIP file was not found in the repository root."\n  exit 1\nfi\nmkdir -p "$GITHUB_WORKSPACE/source"\nunzip -o "$ZIP_FILE" -d "$GITHUB_WORKSPACE/source""
-},
-{
-"name": "Locate Android Project",
-"shell": "bash",
-"run": "set -e\nSETTINGS_FILE="$(find "$GITHUB_WORKSPACE/source" -type f \-name 'settings.gradle' -o -name 'settings.gradle.kts' \ -print -quit)"\nif [ -z "$SETTINGS_FILE" ]; then\n  echo "ERROR: Android Gradle settings file was not found inside the ZIP."\n  exit 1\nfi\nPROJECT_DIR="$(dirname "$SETTINGS_FILE")"\necho "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"\necho "Android project found: $PROJECT_DIR""
-},
-{
-"name": "Set up Gradle",
-"uses": "gradle/actions/setup-gradle@v4",
-"with": {
-"gradle-version": "8.9"
-}
-},
-{
-"name": "Build Debug APK",
-"shell": "bash",
-"run": "set -e\ngradle -p "$PROJECT_DIR" assembleDebug"
-},
-{
-"name": "Upload APK",
-"uses": "actions/upload-artifact@v4",
-"with": {
-"name": "CAMON30S-Sensi-APK",
-"path": "**/build/outputs/apk/debug/*.apk",
-"if-no-files-found": "error"
-}
-}
-]
-}
-}
+  "name": "Build Sensi APK",
+  "on": {
+    "workflow_dispatch": {},
+    "push": {
+      "paths": [
+        "TECNO_CAMON30S_Sensi_App_Project.zip",
+        ".github/workflows/android.yml"
+      ]
+    }
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "jobs": {
+    "build": {
+      "runs-on": "ubuntu-24.04",
+      "env": {
+        "ANDROID_HOME": "/usr/local/lib/android/sdk",
+        "ANDROID_SDK_ROOT": "/usr/local/lib/android/sdk"
+      },
+      "steps": [
+        {
+          "name": "Checkout repository",
+          "uses": "actions/checkout@v5"
+        },
+        {
+          "name": "Set up Java",
+          "uses": "actions/setup-java@v5",
+          "with": {
+            "distribution": "temurin",
+            "java-version": "17"
+          }
+        },
+        {
+          "name": "Install Android Command-line Tools",
+          "shell": "bash",
+          "run": "set -e\nmkdir -p \"$ANDROID_HOME/cmdline-tools\"\ncd \"$RUNNER_TEMP\"\ncurl -fL https://dl.google.com/android/repository/commandlinetools-linux-12266719_latest.zip -o android-tools.zip\nmkdir -p android-tools\nunzip -q android-tools.zip -d android-tools\nmv android-tools/cmdline-tools \"$ANDROID_HOME/cmdline-tools/latest\"\necho \"$ANDROID_HOME/cmdline-tools/latest/bin\" >> \"$GITHUB_PATH\"\necho \"$ANDROID_HOME/platform-tools\" >> \"$GITHUB_PATH\""
+        },
+        {
+          "name": "Accept Android SDK Licenses",
+          "shell": "bash",
+          "run": "set -e\nset +o pipefail\nyes | sdkmanager --sdk_root=\"$ANDROID_HOME\" --licenses || true"
+        },
+        {
+          "name": "Install Android SDK Components",
+          "shell": "bash",
+          "run": "set -e\nsdkmanager --sdk_root=\"$ANDROID_HOME\" --install \"platform-tools\" \"platforms;android-35\" \"build-tools;35.0.0\""
+        },
+        {
+          "name": "Extract project ZIP",
+          "shell": "bash",
+          "run": "set -e\nZIP_FILE=\"$GITHUB_WORKSPACE/TECNO_CAMON30S_Sensi_App_Project.zip\"\nif [ ! -f \"$ZIP_FILE\" ]; then\n  echo \"ERROR: Project ZIP file was not found in the repository root.\"\n  exit 1\nfi\nmkdir -p \"$GITHUB_WORKSPACE/source\"\nunzip -o \"$ZIP_FILE\" -d \"$GITHUB_WORKSPACE/source\""
+        },
+        {
+          "name": "Locate Android Project",
+          "shell": "bash",
+          "run": "set -e\nSETTINGS_FILE=$(find \"$GITHUB_WORKSPACE/source\" -type f \\( -name 'settings.gradle' -o -name 'settings.gradle.kts' \\) -print -quit)\nif [ -z \"$SETTINGS_FILE\" ]; then\n  echo \"ERROR: Android Gradle settings file was not found inside the ZIP.\"\n  exit 1\nfi\nPROJECT_DIR=$(dirname \"$SETTINGS_FILE\")\necho \"PROJECT_DIR=$PROJECT_DIR\" >> \"$GITHUB_ENV\"\necho \"Android project found: $PROJECT_DIR\""
+        },
+        {
+          "name": "Set up Gradle",
+          "uses": "gradle/actions/setup-gradle@v4",
+          "with": {
+            "gradle-version": "8.9"
+          }
+        },
+        {
+          "name": "Build Debug APK",
+          "shell": "bash",
+          "run": "set -e\ngradle -p \"$PROJECT_DIR\" assembleDebug"
+        },
+        {
+          "name": "Upload APK",
+          "uses": "actions/upload-artifact@v4",
+          "with": {
+            "name": "CAMON30S-Sensi-APK",
+            "path": "**/build/outputs/apk/debug/*.apk",
+            "if-no-files-found": "error"
+          }
+        }
+      ]
+    }
+  }
 }
