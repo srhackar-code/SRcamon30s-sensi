@@ -32,20 +32,12 @@ steps:
     shell: bash
     run: |
       set -e
-
       mkdir -p "$ANDROID_HOME/cmdline-tools"
       cd "$RUNNER_TEMP"
-
-      curl -fL \
-        https://dl.google.com/android/repository/commandlinetools-linux-12266719_latest.zip \
-        -o android-tools.zip
-
+      curl -fL https://dl.google.com/android/repository/commandlinetools-linux-12266719_latest.zip -o android-tools.zip
       mkdir -p android-tools
       unzip -q android-tools.zip -d android-tools
-
-      mv android-tools/cmdline-tools \
-        "$ANDROID_HOME/cmdline-tools/latest"
-
+      mv android-tools/cmdline-tools "$ANDROID_HOME/cmdline-tools/latest"
       echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
       echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
 
@@ -53,7 +45,7 @@ steps:
     shell: bash
     run: |
       set -e
-      printf 'y\n%.0s' {1..100} | sdkmanager --sdk_root="$ANDROID_HOME" --licenses
+      yes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses || true
 
   - name: Install Android SDK Components
     shell: bash
@@ -68,27 +60,24 @@ steps:
     shell: bash
     run: |
       set -e
-
-      if [ ! -f "TECNO_CAMON30S_Sensi_App_Project.zip" ]; then
+      ZIP_FILE="$GITHUB_WORKSPACE/TECNO_CAMON30S_Sensi_App_Project.zip"
+      if [ ! -f "$ZIP_FILE" ]; then
         echo "ERROR: Project ZIP file was not found in the repository root."
         exit 1
       fi
-
-      mkdir -p source
-      unzip -o "TECNO_CAMON30S_Sensi_App_Project.zip" -d source
+      mkdir -p "$GITHUB_WORKSPACE/source"
+      unzip -o "$ZIP_FILE" -d "$GITHUB_WORKSPACE/source"
 
   - name: Locate Android Project
     shell: bash
     run: |
       set -e
-
-      PROJECT_DIR="$(find "$GITHUB_WORKSPACE/source" -type f -name settings.gradle -o -name settings.gradle.kts -print -quit | xargs -r dirname)"
-
-      if [ -z "$PROJECT_DIR" ]; then
-        echo "ERROR: Android Gradle project settings file was not found inside the ZIP."
+      SETTINGS_FILE="$(find "$GITHUB_WORKSPACE/source" -type f -name 'settings.gradle' -o -name 'settings.gradle.kts' -print -quit)"
+      if [ -z "$SETTINGS_FILE" ]; then
+        echo "ERROR: settings.gradle or settings.gradle.kts was not found inside the ZIP."
         exit 1
       fi
-
+      PROJECT_DIR="$(dirname "$SETTINGS_FILE")"
       echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
       echo "Android project found: $PROJECT_DIR"
 
